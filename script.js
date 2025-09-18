@@ -74,7 +74,7 @@ loadBtn.addEventListener('click', () => loadPdf(pdfUrlInput.value.trim()));
 // --- Auto-load PDF from query string (?=pdfurl)
 document.addEventListener('DOMContentLoaded', () => {
   const params = new URLSearchParams(window.location.search);
-  const pdfUrl = params.get(''); // because query is like ?=link
+  const pdfUrl = params.get('pdf'); // explicit key
   if (pdfUrl) {
     pdfUrlInput.value = pdfUrl;
     loadPdf(pdfUrl);
