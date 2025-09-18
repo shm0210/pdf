@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Minimal Video Viewer</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="topbar">
+      <input id="videoLinkInput" class="url-input" type="url" placeholder="Paste video URL and press Enter or Load" />
+      <button id="loadBtn" class="btn">Load</button>
+    </div>
+
+    <div id="viewerWrap" class="viewer-wrap">
+      <video id="videoPlayer" class="video-player" controls>
+        Your browser does not support the video tag.
+      </video>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
