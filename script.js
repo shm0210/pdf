@@ -4,33 +4,84 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 
 const pdfUrlInput = document.getElementById('pdfUrl');
 const loadBtn = document.getElementById('loadBtn');
+const btnText = document.querySelector('.btn-text');
+const btnSpinner = document.querySelector('.btn-spinner');
 const viewer = document.getElementById('viewer');
 const viewerWrap = document.getElementById('viewerWrap');
 const pageIndicator = document.getElementById('pageIndicator');
 const hint = document.getElementById('hint');
 
 let pdfDoc = null;
+let observer = null;
+
+function showButtonLoading() {
+  btnText.style.display = 'none';
+  btnSpinner.style.display = 'flex';
+  loadBtn.disabled = true;
+}
+
+function hideButtonLoading() {
+  btnText.style.display = 'block';
+  btnSpinner.style.display = 'none';
+  loadBtn.disabled = false;
+}
+
+function showViewerLoading() {
+  viewer.innerHTML = `
+    <div class="loading-overlay">
+      <div class="loading-spinner-large"></div>
+    </div>
+  `;
+  pageIndicator.style.display = 'none';
+}
+
+function showError(message) {
+  viewer.innerHTML = `
+    <div class="error-message">
+      <h3>Error Loading PDF</h3>
+      <p>${message}</p>
+    </div>
+  `;
+}
 
 async function loadPdf(url) {
-  viewer.innerHTML = '<div style="text-align:center;padding:20px;">Loading…</div>';
-  pageIndicator.style.display = 'none';
+  if (!url) {
+    showError('Please enter a valid URL');
+    return;
+  }
+  
+  showButtonLoading();
+  showViewerLoading();
+  
   try {
+    // Clear previous observer if any
+    if (observer) {
+      observer.disconnect();
+      observer = null;
+    }
+    
     const loadingTask = pdfjsLib.getDocument(url);
     pdfDoc = await loadingTask.promise;
+    
     viewer.innerHTML = '';
     for (let i = 1; i <= pdfDoc.numPages; i++) {
       await renderPage(i);
     }
+    
     pageIndicator.style.display = 'block';
     pageIndicator.textContent = `1 / ${pdfDoc.numPages}`;
+    hint.style.display = 'none';
   } catch (err) {
-    viewer.innerHTML = `<div style="color:red;padding:20px;">Error: ${err.message}</div>`;
+    console.error('PDF loading error:', err);
+    showError(err.message || 'Failed to load the PDF. Please check the URL and try again.');
+  } finally {
+    hideButtonLoading();
   }
 }
 
 async function renderPage(num) {
   const page = await pdfDoc.getPage(num);
-  const viewport = page.getViewport({ scale: 1.2 });
+  const viewport = page.getViewport({ scale: 1.5 }); // Slightly increased scale for better readability
 
   const pageWrap = document.createElement('div');
   pageWrap.className = 'page';
@@ -50,7 +101,6 @@ async function renderPage(num) {
   observePage(pageWrap, num);
 }
 
-let observer = null;
 function observePage(el, num) {
   if (!observer) {
     observer = new IntersectionObserver((entries) => {
@@ -69,12 +119,13 @@ function observePage(el, num) {
 pdfUrlInput.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') loadPdf(pdfUrlInput.value.trim());
 });
+
 loadBtn.addEventListener('click', () => loadPdf(pdfUrlInput.value.trim()));
 
-// --- Auto-load PDF from query string (?=pdfurl)
+// Auto-load PDF from query string (?pdf=url)
 document.addEventListener('DOMContentLoaded', () => {
   const params = new URLSearchParams(window.location.search);
-  const pdfUrl = params.get('pdf'); // explicit key
+  const pdfUrl = params.get('pdf');
   if (pdfUrl) {
     pdfUrlInput.value = pdfUrl;
     loadPdf(pdfUrl);
