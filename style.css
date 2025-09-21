@@ -34,10 +34,12 @@ html, body {
   background: white;
   border-radius: 12px;
   box-shadow: var(--shadow);
+  flex-wrap: wrap;
 }
 
 .url-input {
   flex: 1;
+  min-width: 200px;
   height: 44px;
   padding: 0 16px;
   border-radius: 8px;
@@ -87,6 +89,40 @@ html, body {
   transform: none;
 }
 
+.zoom-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.zoom-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: white;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.zoom-btn:hover {
+  background: #f3f4f6;
+  border-color: #cbd5e1;
+}
+
+.zoom-level {
+  font-size: 14px;
+  font-weight: 600;
+  min-width: 50px;
+  text-align: center;
+}
+
 .viewer-wrap {
   flex: 1;
   overflow: auto;
@@ -100,23 +136,43 @@ html, body {
 .viewer {
   width: 100%;
   max-width: 1100px;
-  padding: 10px;
+  padding: 0;
 }
 
-.page {
+/* Continuous view styling */
+.viewer.continuous {
+  padding: 20px;
+}
+
+.continuous .page {
   background: var(--page-bg);
-  margin: 12px 0;
-  padding: 10px;
-  border-radius: 8px;
-  box-shadow: var(--shadow);
-  border: 1px solid var(--border);
+  margin: 0 auto 1px;
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
+  border: none;
+  position: relative;
+  overflow: hidden;
+  page-break-inside: avoid;
+  break-inside: avoid;
 }
 
-.pdf-canvas {
+.continuous .page:first-child {
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+.continuous .page:last-child {
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  margin-bottom: 0;
+}
+
+.continuous .pdf-canvas {
   width: 100%;
   height: auto;
   display: block;
-  border-radius: 4px;
+  border-radius: 0;
 }
 
 .page-indicator {
@@ -229,6 +285,12 @@ html, body {
   }
   
   .btn {
+    width: 100%;
+  }
+  
+  .zoom-controls {
+    margin-left: 0;
+    justify-content: center;
     width: 100%;
   }
 }
