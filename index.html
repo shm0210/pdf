@@ -3,20 +3,26 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Minimal PDF Viewer</title>
+  <title>Modern PDF Viewer</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="container">
     <div class="topbar">
       <input id="pdfUrl" class="url-input" type="url" placeholder="Paste PDF URL and press Enter or Load" />
-      <button id="loadBtn" class="btn">Load</button>
+      <button id="loadBtn" class="btn">
+        <span class="btn-text">Load</span>
+        <div class="btn-spinner" style="display: none;">
+          <div class="spinner"></div>
+        </div>
+      </button>
     </div>
 
     <div id="viewerWrap" class="viewer-wrap">
       <div id="viewer" class="viewer">
-        <div id="hint" style="text-align:center;color:#666;padding:20px;">
-          Paste a public PDF link above or pass it as <code>?=url</code>.
+        <div id="hint" class="hint">
+          <div class="hint-icon">📄</div>
+          <p>Paste a public PDF link above or pass it as <code>?pdf=url</code>.</p>
         </div>
       </div>
     </div>
