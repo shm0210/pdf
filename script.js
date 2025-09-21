@@ -10,9 +10,14 @@ const viewer = document.getElementById('viewer');
 const viewerWrap = document.getElementById('viewerWrap');
 const pageIndicator = document.getElementById('pageIndicator');
 const hint = document.getElementById('hint');
+const zoomInBtn = document.getElementById('zoomIn');
+const zoomOutBtn = document.getElementById('zoomOut');
+const zoomLevel = document.getElementById('zoomLevel');
 
 let pdfDoc = null;
 let observer = null;
+let currentScale = 1.2;
+let currentPage = 1;
 
 function showButtonLoading() {
   btnText.style.display = 'none';
@@ -64,13 +69,18 @@ async function loadPdf(url) {
     pdfDoc = await loadingTask.promise;
     
     viewer.innerHTML = '';
+    viewer.classList.add('continuous');
+    
     for (let i = 1; i <= pdfDoc.numPages; i++) {
       await renderPage(i);
     }
     
     pageIndicator.style.display = 'block';
-    pageIndicator.textContent = `1 / ${pdfDoc.numPages}`;
+    pageIndicator.textContent = `Page 1 of ${pdfDoc.numPages}`;
     hint.style.display = 'none';
+    
+    // Set up intersection observer for page tracking
+    setupPageObserver();
   } catch (err) {
     console.error('PDF loading error:', err);
     showError(err.message || 'Failed to load the PDF. Please check the URL and try again.');
@@ -81,11 +91,12 @@ async function loadPdf(url) {
 
 async function renderPage(num) {
   const page = await pdfDoc.getPage(num);
-  const viewport = page.getViewport({ scale: 1.5 }); // Slightly increased scale for better readability
+  const viewport = page.getViewport({ scale: currentScale });
 
   const pageWrap = document.createElement('div');
   pageWrap.className = 'page';
   pageWrap.id = 'page-' + num;
+  pageWrap.dataset.pageNumber = num;
 
   const canvas = document.createElement('canvas');
   canvas.className = 'pdf-canvas';
@@ -97,23 +108,56 @@ async function renderPage(num) {
   canvas.height = viewport.height;
 
   await page.render({ canvasContext: context, viewport: viewport }).promise;
-
-  observePage(pageWrap, num);
 }
 
-function observePage(el, num) {
-  if (!observer) {
-    observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          pageIndicator.textContent = `${parseInt(
-            entry.target.id.replace('page-', '')
-          )} / ${pdfDoc.numPages}`;
-        }
-      });
-    }, { root: viewerWrap, threshold: 0.6 });
+function setupPageObserver() {
+  if (observer) {
+    observer.disconnect();
   }
-  observer.observe(el);
+  
+  observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        const pageNum = parseInt(entry.target.dataset.pageNumber);
+        currentPage = pageNum;
+        pageIndicator.textContent = `Page ${pageNum} of ${pdfDoc.numPages}`;
+      }
+    });
+  }, { 
+    root: null,
+    rootMargin: '0px',
+    threshold: 0.5
+  });
+  
+  // Observe all pages
+  document.querySelectorAll('.page').forEach(page => {
+    observer.observe(page);
+  });
+}
+
+function zoomPdf(factor) {
+  if (!pdfDoc) return;
+  
+  currentScale *= factor;
+  currentScale = Math.max(0.5, Math.min(3, currentScale)); // Limit zoom range
+  zoomLevel.textContent = `${Math.round(currentScale * 100)}%`;
+  
+  // Re-render all pages with new scale
+  showViewerLoading();
+  
+  setTimeout(async () => {
+    viewer.innerHTML = '';
+    for (let i = 1; i <= pdfDoc.numPages; i++) {
+      await renderPage(i);
+    }
+    setupPageObserver();
+    
+    // Scroll to current page
+    const currentPageElem = document.getElementById(`page-${currentPage}`);
+    if (currentPageElem) {
+      currentPageElem.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, 100);
 }
 
 pdfUrlInput.addEventListener('keydown', (e) => {
@@ -121,6 +165,9 @@ pdfUrlInput.addEventListener('keydown', (e) => {
 });
 
 loadBtn.addEventListener('click', () => loadPdf(pdfUrlInput.value.trim()));
+
+zoomInBtn.addEventListener('click', () => zoomPdf(1.2));
+zoomOutBtn.addEventListener('click', () => zoomPdf(0.8));
 
 // Auto-load PDF from query string (?pdf=url)
 document.addEventListener('DOMContentLoaded', () => {
