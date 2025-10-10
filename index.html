@@ -3,28 +3,30 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Minimal PDF Viewer</title>
+  <title>INFINITY PDF VIEWER</title>
   <link rel="stylesheet" href="style.css" />
 </head>
-<body>
-  <div class="container">
-    <div class="topbar">
-      <input id="pdfUrl" class="url-input" type="url" placeholder="Paste PDF URL and press Enter or Load" />
-      <button id="loadBtn" class="btn">Load</button>
-    </div>
+<body class="light">
+  <div class="topbar">
+    <input id="pdfUrl" type="url" placeholder="Paste PDF URL here..." />
+    <input id="pdfFile" type="file" accept="application/pdf" />
+    <button id="loadBtn">Load</button>
+  </div>
 
+  <div class="viewer-area">
     <div id="viewerWrap" class="viewer-wrap">
       <div id="viewer" class="viewer">
-        <div id="hint" style="text-align:center;color:#666;padding:20px;">
-          Paste a public PDF link above or pass it as <code>?=url</code>.
-        </div>
+        <div id="hint" class="hint">Paste a public PDF link above, select a local PDF, or press Load.</div>
       </div>
     </div>
 
-    <div id="pageIndicator" class="page-indicator" style="display:none">0 / 0</div>
+    <div id="pageIndicator" class="page-indicator">0 / 0</div>
+    <div id="loader" class="loader hidden"></div>
+
+    <!-- 🔘 Small dark/light toggle -->
+    <button id="themeToggle" class="theme-toggle" title="Toggle light / dark">☀️</button>
   </div>
 
-  <!-- PDF.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
   <script src="script.js"></script>
 </body>

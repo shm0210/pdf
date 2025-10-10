@@ -1,107 +1,211 @@
 :root {
+  --page-gap: 2px;
+  --accent: #0078ff;
+}
+
+/* ---- Light theme ---- */
+body.light {
   --bg: #f6f7f8;
   --page-bg: #fff;
-  --tiny-border: 4px;
+  --border: rgba(0, 0, 0, 0.1);
+  --text: #222;
+  --invert-filter: none;
+}
+
+/* ---- Dark theme ---- */
+body.dark {
+  --bg: #121212;
+  --page-bg: #1e1e1e;
+  --border: rgba(255, 255, 255, 0.1);
+  --text: #eaeaea;
+  --invert-filter: invert(0.92) hue-rotate(180deg);
 }
 
 html, body {
   height: 100%;
   margin: 0;
-  background: var(--bg);
   font-family: system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow: hidden;
 }
 
-.container {
-  height: 100%;
-  padding: var(--tiny-border);
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
+/* Top bar */
 .topbar {
   display: flex;
-  gap: 6px;
   align-items: center;
-  padding: 6px;
+  gap: 8px;
+  padding: 8px;
+  background: var(--page-bg);
+  border-bottom: 1px solid var(--border);
 }
 
-.url-input {
+.topbar input[type="url"] {
   flex: 1;
-  height: 36px;
   padding: 8px 10px;
   border-radius: 6px;
-  border: 1px solid rgba(0,0,0,0.2);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
   font-size: 14px;
 }
 
-.btn {
-  height: 36px;
-  padding: 0 12px;
+.topbar input::placeholder { 
+  color: #888; 
+}
+
+.topbar input[type="file"] {
+  padding: 4px;
+  font-size: 13px;
+}
+
+.topbar button {
+  padding: 8px 14px;
   border-radius: 6px;
-  border: 1px solid rgba(0,0,0,0.2);
-  background: white;
-  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--accent);
+  color: white;
   font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.topbar button:hover { 
+  background: #0066d3; 
+}
+
+/* Viewer */
+.viewer-area {
+  height: calc(100% - 50px);
+  position: relative;
+  background: var(--bg);
 }
 
 .viewer-wrap {
-  flex: 1;
-  overflow: auto;
+  height: 100%;
+  width: 100%;
+  overflow-y: auto;
   display: flex;
   justify-content: center;
+  background: var(--bg);
 }
 
 .viewer {
   width: 100%;
-  max-width: 1100px;
+  max-width: 1000px;
+  padding: 0;
 }
 
 .page {
   background: var(--page-bg);
-  margin-bottom: 1px;
-  box-shadow: 0 0 0 1px rgba(0,0,0,0.05) inset;
+  margin: var(--page-gap) 0;
+  padding: 0;
 }
 
 .pdf-canvas {
   width: 100%;
   height: auto;
   display: block;
+  filter: var(--invert-filter);
 }
 
+.hint {
+  text-align: center;
+  color: #888;
+  padding: 30px;
+}
+
+/* Page indicator */
 .page-indicator {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
-  color: #222;
-  padding: 6px 8px;
+  color: var(--text);
+  padding: 6px 10px;
   border-radius: 6px;
-  border: 1px solid rgba(0,0,0,0.06);
-  background: rgba(255,255,255,0.9);
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.8);
   position: fixed;
-  right: 8px;
-  bottom: 8px;
+  right: 12px;
+  bottom: 12px;
+  backdrop-filter: blur(10px);
 }
 
-.loading-spinner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px;
-  color: #666;
+body.dark .page-indicator {
+  background: rgba(30,30,30,0.8);
 }
 
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid rgba(0, 0, 0, 0.1);
-  border-left-color: #007bff;
+/* Loader */
+.loader {
+  border: 5px solid rgba(255,255,255,0.1);
+  border-top: 5px solid var(--accent);
   border-radius: 50%;
+  width: 45px;
+  height: 45px;
   animation: spin 1s linear infinite;
-  margin-bottom: 16px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+}
+
+.hidden { 
+  display: none; 
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% { 
+    transform: translate(-50%, -50%) rotate(0deg); 
+  }
+  100% { 
+    transform: translate(-50%, -50%) rotate(360deg); 
+  }
+}
+
+/* Custom scrollbar */
+.viewer-wrap::-webkit-scrollbar {
+  width: 10px;
+}
+
+.viewer-wrap::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 6px;
+}
+
+.viewer-wrap::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+body.light .viewer-wrap::-webkit-scrollbar-thumb {
+  background: #ccc;
+}
+
+body.light .viewer-wrap::-webkit-scrollbar-thumb:hover {
+  background: #aaa;
+}
+
+/* Tiny theme toggle */
+.theme-toggle {
+  position: fixed;
+  left: 10px;
+  bottom: 10px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--page-bg);
+  color: var(--text);
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.7;
+  transition: all 0.2s;
+  z-index: 100;
+}
+
+.theme-toggle:hover { 
+  opacity: 1; 
+  transform: scale(1.1);
 }
